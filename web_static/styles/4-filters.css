@@ -1,0 +1,8 @@
+.filters {
+  background-color: white;
+  height: 70px;
+  width: 100%;
+  border: 4px #dddddd solid;
+  display: flex;
+  justify-content: end;
+}
