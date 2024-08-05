@@ -21,13 +21,13 @@ class BaseModel:
             *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
         """
-        if len(kwargs) != 0:
+        if kwargs:
             for key, value in kwargs.items():
                 if key == "__class__":
                     continue
-                elif key == "created_at" or key == "updated_at":
-                    setattr(self, key,
-                            datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f'))
+                elif key in ["created_at", "updated_at"]:
+                    setattr(self, key, datetime.strptime(
+                        value, '%Y-%m-%dT%H:%M:%S.%f'))
                 else:
                     setattr(self, key, value)
         else:
