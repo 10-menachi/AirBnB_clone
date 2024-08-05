@@ -4,6 +4,7 @@
 import cmd
 import ast
 import shlex
+import re
 from models import storage
 from models.user import User
 from models.state import State
@@ -158,52 +159,52 @@ class HBNBCommand(cmd.Cmd):
                              if type(obj).__name__ == class_name]
             print(filtered_objs)
 
-    def do_update(self, arg):
+    def do_update(self, line):
+        """Updates an instance by adding or updating attribute.
         """
-        Updates an instance based on the class name and id.
-
-        Args:
-        - arg (str): The command-line argument containing the class name,
-                    instance id, attribute name, and attribute value.
-
-        Usage:
-        $ update BaseModel 1234-1234-1234 email "aibnb@mail.com"
-        """
-        args = shlex.split(arg)
-        if not args:
+        if line == "" or line is None:
             print("** class name missing **")
             return
-        class_name = args[0]
-        if class_name not in self.valid_classes:
+
+        rex = r'^(\S+)(?:\s(\S+)(?:\s(\S+)(?:\s((?:"[^"]*")|(?:(\S)+)))?)?)?'
+        match = re.search(rex, line)
+        classname = match.group(1)
+        uid = match.group(2)
+        attribute = match.group(3)
+        value = match.group(4)
+        if not match:
+            print("** class name missing **")
+        elif classname not in storage.classes():
             print("** class doesn't exist **")
-            return
-        if len(args) < 2:
+        elif uid is None:
             print("** instance id missing **")
-            return
-        instance_id = args[1]
-        key = "{}.{}".format(class_name, instance_id)
-        all_objs = storage.all()
-        if key not in all_objs:
-            print("** no instance found **")
-            return
-        if len(args) < 3:
-            print("** attribute name missing **")
-            return
-        attribute_name = args[2]
-        if len(args) < 4:
-            print("** value missing **")
-            return
-        attribute_value_str = args[3]
-        try:
-            attribute_value = ast.literal_eval(attribute_value_str)
-        except (AttributeError, ValueError):
-            print("** invalid attribute value **")
-            return
-        instance = all_objs[key]
-        setattr(instance, attribute_name, attribute_value)
-        instance.save()
-        print(f"update {class_name} \"{instance_id}\" "
-              f"{attribute_name} \"{attribute_value}\"")
+        else:
+            key = "{}.{}".format(classname, uid)
+            if key not in storage.all():
+                print("** no instance found **")
+            elif not attribute:
+                print("** attribute name missing **")
+            elif not value:
+                print("** value missing **")
+            else:
+                cast = None
+                if not re.search('^".*"$', value):
+                    if '.' in value:
+                        cast = float
+                    else:
+                        cast = int
+                else:
+                    value = value.replace('"', '')
+                attributes = storage.attributes()[classname]
+                if attribute in attributes:
+                    value = attributes[attribute](value)
+                elif cast:
+                    try:
+                        value = cast(value)
+                    except ValueError:
+                        pass  # fine, stay a string then
+                setattr(storage.all()[key], attribute, value)
+                storage.all()[key].save()
 
 
 if __name__ == '__main__':
