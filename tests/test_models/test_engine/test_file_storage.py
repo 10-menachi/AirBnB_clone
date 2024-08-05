@@ -23,6 +23,20 @@ class TestFileStorage(unittest.TestCase):
         """Test that __file_path is initialized correctly"""
         self.assertEqual(self.file_path, "file.json")
 
+    def test_all_returns_dict(self):
+        """Test that all() returns a dictionary"""
+        result = self.file_storage.all()
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result, {})
+
+    def test_new_adds_object(self):
+        """Test that new() adds an object to __objects"""
+        base_model = BaseModel()
+        self.file_storage.new(base_model)
+        key = f"BaseModel.{base_model.id}"
+        self.assertIn(key, self.file_storage.all())
+        self.assertEqual(self.file_storage.all()[key], base_model)
+
     def test_save_creates_file(self):
         """Test that save creates a file with the correct content"""
         base_model = BaseModel()
