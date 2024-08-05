@@ -26,7 +26,7 @@ class TestBaseModel(unittest.TestCase):
         """
         from models.engine.file_storage import FileStorage
         FileStorage._FileStorage__objects = {}
-        file_path = FileStorage._FileStorage__file_path  # Accessing the mangled name
+        file_path = FileStorage._FileStorage__file_path
         if os.path.isfile(file_path):
             os.remove(file_path)
 
@@ -34,7 +34,9 @@ class TestBaseModel(unittest.TestCase):
         """
         Test the __str__ method
         """
-        self.assertIsInstance(str(self.base_model), str)
+        expected_str = f"[{self.base_model.__class__.__name__}] ({self.base_model.id}) {
+            self.base_model.__dict__}"
+        self.assertEqual(str(self.base_model), expected_str)
 
     def test_save(self):
         """
@@ -48,7 +50,18 @@ class TestBaseModel(unittest.TestCase):
         """
         Test the to_dict method
         """
-        self.assertIsInstance(self.base_model.to_dict(), dict)
+        base_dict = self.base_model.to_dict()
+        self.assertIsInstance(base_dict, dict)
+        self.assertIn("id", base_dict)
+        self.assertIn("created_at", base_dict)
+        self.assertIn("updated_at", base_dict)
+        self.assertIn("__class__", base_dict)
+        self.assertEqual(base_dict["__class__"], "BaseModel")
+        self.assertEqual(base_dict["id"], self.base_model.id)
+        self.assertEqual(base_dict["created_at"],
+                         self.base_model.created_at.isoformat())
+        self.assertEqual(base_dict["updated_at"],
+                         self.base_model.updated_at.isoformat())
 
 
 if __name__ == '__main__':
