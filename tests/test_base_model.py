@@ -26,8 +26,9 @@ class TestBaseModel(unittest.TestCase):
         """
         from models.engine.file_storage import FileStorage
         FileStorage._FileStorage__objects = {}
-        if os.path.isfile(FileStorage.__file_path):
-            os.remove(FileStorage.__file_path)
+        file_path = FileStorage._FileStorage__file_path  # Accessing the mangled name
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
     def test_str(self):
         """
