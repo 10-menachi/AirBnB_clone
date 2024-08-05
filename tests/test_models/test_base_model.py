@@ -14,7 +14,7 @@ class TestBaseModel(unittest.TestCase):
         """
         self.base_model = BaseModel()
 
-    def tearDown(self) -> None:
+    def tearDown(self):
         """
         Tear down method for the test class
         """
@@ -62,6 +62,23 @@ class TestBaseModel(unittest.TestCase):
                          self.base_model.created_at.isoformat())
         self.assertEqual(base_dict["updated_at"],
                          self.base_model.updated_at.isoformat())
+
+    def test_update_attribute(self):
+        """
+        Test updating an attribute in BaseModel
+        """
+        self.base_model.test_name = "test_value"
+        self.assertEqual(self.base_model.test_name, "test_value")
+
+        # Verify that the attribute is included in the string representation
+        expected_str = f"[{self.base_model.__class__.__name__}] ({self.base_model.id}) {
+            self.base_model.__dict__}"
+        self.assertEqual(str(self.base_model), expected_str)
+
+        # Verify that the attribute is included in the dictionary representation
+        base_dict = self.base_model.to_dict()
+        self.assertIn("test_name", base_dict)
+        self.assertEqual(base_dict["test_name"], "test_value")
 
 
 if __name__ == '__main__':
