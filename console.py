@@ -202,8 +202,8 @@ class HBNBCommand(cmd.Cmd):
         instance = all_objs[key]
         setattr(instance, attribute_name, attribute_value)
         instance.save()
-        print(f"update {class_name} \"{instance_id}\" {
-              attribute_name} \"{attribute_value}\"")
+        print(f"update {class_name} \"{instance_id}\" "
+              f"{attribute_name} \"{attribute_value}\"")
 
 
 if __name__ == '__main__':
